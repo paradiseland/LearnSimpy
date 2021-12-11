@@ -10,6 +10,7 @@ import math
 import random
 
 import simpy
+from functools import partial, wraps
 
 
 def generator():
@@ -105,6 +106,34 @@ def wait_multi_events():
     p, robot = env.timeout(10, value='People'), env.timeout(20, value='robot')
     result = yield p & robot
     assert result == {p: 'People', robot: 'robot'}
+
+
+def patch_resource(resource, pre=None, post=None):
+    """
+    Patch * resource * so that it calls the callable
+    * pre * before each ... put/get/request/release operation
+    and the callable * post * after each ... operation.
+    The only argument to these functions is the resource ... instance.
+    :param resource:
+    :param pre:
+    :param post:
+    :return:
+    """
+
+    def get_wrapper(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if pre:
+                pre(resource)
+            result = func(*args, **kwargs)
+            if post:
+                post(resource)
+            return result
+
+        return wrapper
+    for name in ['put', 'get', 'request', 'release']:
+        if hasattr(resource, name):
+            setattr(resource, name, get_wrapper(getattr(resource, name)))
 
 
 if __name__ == '__main__':

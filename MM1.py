@@ -14,14 +14,10 @@ import simpy
 from simpy import Environment
 
 LOG_LEVEL = 5
-SIM_TIME = 360000
+SIM_TIME = 3600
 ARRIVAL_RATE = 100 / 3600
-SERVICE_RATE = 95 / 3600
+SERVICE_RATE = 80 / 3600
 random.seed(42)  # ensure the same result
-
-lambda_ = ARRIVAL_RATE
-mu = 1 / SERVICE_RATE
-rho = lambda_ / mu
 
 
 class MM1(Environment):
@@ -48,7 +44,7 @@ class MM1(Environment):
     def observe(self):
         while True:
             self.queue_record[0] += 1
-            self.queue_record[1] += len(self.server.get_queue)
+            self.queue_record[1] += len(self.server.put_queue)
             yield self.timeout(10)
 
     def serve(self, client_id):
@@ -66,7 +62,7 @@ class MM1(Environment):
         self.served = client_id
 
     def output(self):
-        logging.log(50, f"Total Simulation time: {SIM_TIME} s\n"
+        logging.log(50, f"{'-'*30}\nTotal Simulation time: {SIM_TIME} s\n"
                         f"Arrive: {self.index}\n"
                         f"Served: {self.served}\n"
                         f"Mean Queue Length:{self.queue_record[1] / self.queue_record[0]:.2f}\n"
@@ -80,5 +76,3 @@ if __name__ == '__main__':
     mm1 = MM1()
     mm1.run(until=SIM_TIME)
     mm1.output()
-    logging.log(50, f"theoretical result of Mean Waiting Time: {lambda_ / (lambda_ * (mu - lambda_))}")
-    logging.log(50, f"theoretical result of L_q: {rho ** 2 / (1 - rho)}")

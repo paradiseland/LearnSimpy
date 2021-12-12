@@ -62,13 +62,15 @@ class MM1(Environment):
         self.served = client_id
 
     def output(self):
-        logging.log(50, f"{'-'*30}\nTotal Simulation time: {SIM_TIME} s\n"
+        logging.log(50, f"{'-' * 30}\nTotal Simulation time: {SIM_TIME} s\n"
                         f"Arrive: {self.index}\n"
                         f"Served: {self.served}\n"
                         f"Mean Queue Length:{self.queue_record[1] / self.queue_record[0]:.2f}\n"
                         f"Mean Waiting Time:{sum(self.waiting_time) / len(self.waiting_time):.2f} s\n"
                         f"Mean Service Time:{sum(self.serve_time) / len(self.serve_time):.2f} s\n"
                         f"Mean Total Time:{sum(self.total_time) / len(self.total_time):.2f} s")
+        logging.log(50,
+                    f"Verify Little's law: L({self.queue_record[1] / self.queue_record[0]:.2f})=λW({ARRIVAL_RATE:.2f} *{sum(self.waiting_time) / len(self.waiting_time):.2f})[{ARRIVAL_RATE * sum(self.waiting_time) / len(self.waiting_time):.2f}]")
 
 
 if __name__ == '__main__':

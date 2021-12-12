@@ -6,8 +6,10 @@ Author: Xingwei Chen
 Email:cxw19@mails.tsinghua.edu.cn
 date:2021/12/11 15:31
 """
+import logging
 import math
 import random
+import time
 
 import simpy
 from functools import partial, wraps
@@ -131,12 +133,26 @@ def patch_resource(resource, pre=None, post=None):
             return result
 
         return wrapper
+
     for name in ['put', 'get', 'request', 'release']:
         if hasattr(resource, name):
             setattr(resource, name, get_wrapper(getattr(resource, name)))
+
+
+def timeit(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        local_time = time.time()
+        res = func(*args, **kwargs)
+        logging.log(30, f"{func.__name__}, {time.time() - local_time:.5f}s")
+        return res
+
+    return wrapper
 
 
 if __name__ == '__main__':
     # run_generator()
     # run_learn()
     run_server()
+    import heapq
+    heapq.heapify()
